@@ -1,0 +1,6 @@
+{
+  "name": "pouchdb-in-service-worker",
+  "dependencies": {
+    "pouchdb": "5.4.5"
+  }
+}

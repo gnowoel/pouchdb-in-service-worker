@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>PouchDB in Service Worker</title>
+  </head>
+  <body>
+    <h1>PouchDB in Service Worker</h1>
+
+    <!-- 1. Register on web page -->
+    <!-- <script src="bower_components/pouchdb/dist/pouchdb.js"></script>
+    <script>
+      const localMainDB = new PouchDB('localMainDB');
+      const remoteURL = 'http://couchadmin:test@localhost:5984/main';
+      localMainDB.sync(remoteURL, {
+        live: true,
+        retry: true
+      }).on('change', function(info) {
+        console.log('local sync change', info);
+      }).on('paused', function(info) {
+        console.log('local sync paused', info);
+      }).on('active', function(info) {
+        console.log('local sync active', info);
+      }).on('denied', function(info) {
+        console.log('local sync denied:', info);
+      }).on('complete', function(info) {
+        console.log('local sync complete:', info);
+      }).on('uptodate', function(info) {
+        console.log('local sync up-to-date:', info);
+      }).on('error', function(err) {
+        console.log('local sync error:', err);
+      });
+    </script> -->
+
+    <!-- 2. Register in Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(function(reg) {
+          console.log('Yey!', reg);
+        }).catch(function(err) {
+          console.log('Boo!', err);
+        });
+      }
+    </script>
+  </body>
+</html>
