@@ -2,7 +2,6 @@ importScripts('bower_components/pouchdb/dist/pouchdb.js');
 
 PouchDB.debug.enable('*');
 
-// const localMainDB = new PouchDB('localMainDB');
 let localMainDB;
 let syncingRemote;
 
@@ -32,23 +31,23 @@ function setupRemoteSync() {
   });
 }
 
-// 1. Register directly
-// syncingRemote = setupRemoteSync();
+// 1. Register directly (worked initially, failed on change)
+syncingRemote = setupRemoteSync();
 
-// 2. Register on install
+// 2. Register on install (worked initially, failed on change)
 // self.addEventListener('install', function(event) {
 //   syncingRemote = setupRemoteSync();
-//   event.waitUntil(syncingRemote);
+//   // event.waitUntil(syncingRemote); // never resolves
 // });
 
-// 3. Register on activate
-self.addEventListener('activate', function(event) {
-  syncingRemote = setupRemoteSync();
-  event.waitUntil(syncingRemote);
+// 3. Register on activate (worked initially, failed on change)
+// self.addEventListener('activate', function(event) {
+//   syncingRemote = setupRemoteSync();
+//   // event.waitUntil(syncingRemote); // never resolves
+// });
+
+// Wake up the stopped Service Worker on page reload
+this.addEventListener('fetch', function(event) {
+  console.log('event.request: ', event.request);
+  event.respondWith(fetch(event.request));
 });
-
-// Not needed
-// this.addEventListener('fetch', function(event) {
-//   console.log('event.request: ', event.request);
-//   event.respondWith(fetch(event.request));
-// });

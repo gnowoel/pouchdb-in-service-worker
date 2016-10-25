@@ -7,7 +7,7 @@
   <body>
     <h1>PouchDB in Service Worker</h1>
 
-    <!-- 1. Register on web page -->
+    <!-- 1. Register on web page (always worked) -->
     <!-- <script src="bower_components/pouchdb/dist/pouchdb.js"></script>
     <script>
       const localMainDB = new PouchDB('localMainDB');
@@ -32,7 +32,7 @@
       });
     </script> -->
 
-    <!-- 2. Register in Service Worker -->
+    <!-- 2. Register in Service Worker (partially worked) -->
     <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').then(function(reg) {
