@@ -7,40 +7,47 @@
   <body>
     <h1>PouchDB in Service Worker</h1>
 
-    <!-- 1. Register on web page (always worked) -->
-    <!-- <script src="bower_components/pouchdb/dist/pouchdb.js"></script>
+    <script src="bower_components/pouchdb/dist/pouchdb.js"></script>
     <script>
-      const localMainDB = new PouchDB('localMainDB');
-      const remoteURL = 'http://couchadmin:test@localhost:5984/main';
-      localMainDB.sync(remoteURL, {
-        live: true,
-        retry: true
-      }).on('change', function(info) {
-        console.log('local sync change', info);
-      }).on('paused', function(info) {
-        console.log('local sync paused', info);
-      }).on('active', function(info) {
-        console.log('local sync active', info);
-      }).on('denied', function(info) {
-        console.log('local sync denied:', info);
-      }).on('complete', function(info) {
-        console.log('local sync complete:', info);
-      }).on('uptodate', function(info) {
-        console.log('local sync up-to-date:', info);
-      }).on('error', function(err) {
-        console.log('local sync error:', err);
-      });
-    </script> -->
+      // PouchDB.debug.enable('*');
 
-    <!-- 2. Register in Service Worker (partially worked) -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(function(reg) {
-          console.log('Yey!', reg);
-        }).catch(function(err) {
-          console.log('Boo!', err);
+      const localMainDB = new PouchDB('localMainDB');
+      const remoteDB = new PouchDB('http://couchadmin:test@localhost:5984/main');
+
+      function sync() {
+        return localMainDB.sync(remoteDB).on('error', function(err) {
+          console.log('local sync error:', err);
         });
       }
+
+      function watchLocalDB() {
+        return localMainDB.changes({
+          since: 'now',
+          live: true
+        }).on('change', function(change) {
+          console.log('local change: ', change);
+          sync();
+        }).on('error', function(err) {
+          console.log('local err: ', err);
+        });
+      }
+
+      function watchRemoteDB() {
+        return remoteDB.changes({
+          since: 'now',
+          live: true
+        }).on('change', function(change) {
+          console.log('remote change: ', change);
+          sync();
+        }).on('error', function(err) {
+          console.log('remote err: ', err);
+        });
+      }
+
+      sync().then(function() {
+        watchLocalDB();
+        watchRemoteDB();
+      });
     </script>
   </body>
 </html>
