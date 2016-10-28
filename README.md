@@ -24,4 +24,4 @@ $ npm start
 ## Caveats
 
   * We have PouchDB instances in both the web page and the service worker, but the `sync` event will only be triggered when changes of data happen in the web page (i.e. changes from within the service worker will be ignored).
-  * I tried to do the initial sync in the service worker, but failed with a 500 error (due to some `_local` records missing if we use `db.repliate()`, or empty response if we use `db.sync()`).
+  * I tried to do the initial sync in the service worker, but failed with a 500 error (due to some `_local` records missing if we use `db.replicate()`, or empty response if we use `db.sync()`).
