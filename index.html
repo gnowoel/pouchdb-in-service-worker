@@ -12,62 +12,71 @@
       PouchDB.debug.enable('*');
 
       const localMainDB = new PouchDB('localMainDB');
-      // const remoteDB = new PouchDB('http://couchadmin:test@localhost:5984/main');
-      const remoteDB = new PouchDB('http://localhost:5984/main', {
-        auth: {
-          username: 'couchadmin',
-          password: 'test'
-        }
-      });
-
-      function push() {
-        navigator.serviceWorker.ready
-          .then(function(reg) {
-            return reg.sync.register('push');
-          });
-      }
-
-      function pull() {
-        navigator.serviceWorker.ready
-          .then(function(reg) {
-            return reg.sync.register('pull');
-          });
-      }
-
-      function watchLocalDB() {
-        return localMainDB.changes({
-          since: 'now',
-          live: true
-        }).on('change', function(change) {
-          console.log('local change: ', change);
-          push();
-        }).on('error', function(err) {
-          console.log('local err: ', err);
-        });
-      }
-
-      function watchRemoteDB() {
-        return remoteDB.changes({
-          since: 'now',
-          live: true
-        }).on('change', function(change) {
-          console.log('remote change: ', change);
-          pull();
-        }).on('error', function(err) {
-          console.log('remote err: ', err);
-        });
-      }
+      const remoteDB = new PouchDB('http://couchadmin:test@localhost:5984/main');
 
       if ('serviceWorker' in navigator) {
+        function sync() {
+          console.log('local syncing');
+          return localMainDB.sync(remoteDB).on('error', function(err) {
+            console.log('local sync error:', err);
+          });
+        }
+
+        function push() {
+          console.log('local pushing');
+          navigator.serviceWorker.ready
+            .then(function(reg) {
+              return reg.sync.register('push');
+            });
+        }
+
+        function pull() {
+          console.log('local pulling');
+          navigator.serviceWorker.ready
+            .then(function(reg) {
+              return reg.sync.register('pull');
+            });
+        }
+
+        function watchLocalDB() {
+          console.log('watching local DB');
+          return localMainDB.changes({
+            since: 'now',
+            live: true
+          }).on('change', function(change) {
+            console.log('local change: ', change);
+            push();
+          }).on('error', function(err) {
+            console.log('local err: ', err);
+          });
+        }
+
+        function watchRemoteDB() {
+          console.log('watching remote DB');
+          return remoteDB.changes({
+            since: 'now',
+            live: true
+          }).on('change', function(change) {
+            console.log('remote change: ', change);
+            pull();
+          }).on('error', function(err) {
+            console.log('remote err: ', err);
+          });
+        }
+
+        sync().then(function() {
+          watchLocalDB();
+          watchRemoteDB();
+        });
+
         navigator.serviceWorker.register('/sw.js')
           .then(function(reg) {
             console.log('Yey!', reg);
-            watchLocalDB();
-            watchRemoteDB();
-          }).catch(function(err) {
+          })
+          .catch(function(err) {
             console.log('Boo!', err);
           });
-        }
+      }
     </script>
   </body>
 </html>

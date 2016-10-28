@@ -2,32 +2,23 @@ importScripts('bower_components/pouchdb/dist/pouchdb.js');
 
 // PouchDB.debug.enable('*');
 
-const localMainDB = new PouchDB('localMainDB');
-const remoteURL = 'http://couchadmin:test@localhost:5984/main';
-// const remoteDB = new PouchDB('http://couchadmin:test@localhost:5984/main');
-const remoteDB = new PouchDB('http://localhost:5984/main', {
-  // ajax: {
-  //   withCredentials: true
-  // },
-  auth: {
-    username: 'couchadmin',
-    password: 'test'
-  }
-});
+let localMainDB = new PouchDB('localMainDB');
+let remoteDB = new PouchDB('http://couchadmin:test@localhost:5984/main');
 
 function push() {
+  console.log('sw pushing');
   return localMainDB.replicate.to(remoteDB)
-    .on('change', function (info) {
+    .on('change', function(info) {
       console.log('push change: ', info);
-    }).on('paused', function (err) {
-      console.log('push paused: ', info);
-    }).on('active', function () {
+    }).on('paused', function(err) {
+      console.log('push paused: ', err);
+    }).on('active', function() {
       console.log('pull active');
-    }).on('denied', function (err) {
+    }).on('denied', function(err) {
       console.log('push denied: ', err);
-    }).on('complete', function (info) {
+    }).on('complete', function(info) {
       console.log('push complete: ', info);
-    }).on('error', function (err) {
+    }).on('error', function(err) {
       console.log('push error: ', err);
     })
     .catch(function(err) {
@@ -36,18 +27,19 @@ function push() {
 }
 
 function pull() {
+  console.log('sw pulling');
   return localMainDB.replicate.from(remoteDB)
-    .on('change', function (info) {
+    .on('change', function(info) {
       console.log('pull change: ', info);
-    }).on('paused', function (err) {
-      console.log('pull paused: ', info);
-    }).on('active', function () {
+    }).on('paused', function(err) {
+      console.log('pull paused: ', err);
+    }).on('active', function() {
       console.log('pull active');
-    }).on('denied', function (err) {
+    }).on('denied', function(err) {
       console.log('pull denied: ', err);
-    }).on('complete', function (info) {
+    }).on('complete', function(info) {
       console.log('pull complete: ', info);
-    }).on('error', function (err) {
+    }).on('error', function(err) {
       console.log('pull error: ', err);
     })
     .catch(function(err) {
@@ -57,19 +49,15 @@ function pull() {
 
 // self.addEventListener('install', function(event) {
 //   self.skipWaiting();
-//   event.registerForeignFetch({
-//     scopes: [self.registration.scope],
-//     origins: ['*']
-//   });
 // });
 
 self.addEventListener('activate', function(event) {
-  console.log('activate event: ', event);
-  event.waitUntil(pull());
+  console.log('sw activate event: ', event);
+  // event.waitUntil(pull());  // failed with 500 missing
 });
 
 self.addEventListener('sync', function(event) {
-  console.log('sync event: ', event);
+  console.log('sw sync event: ', event);
   if (event.tag === 'push') {
     event.waitUntil(push());
   } else if (event.tag === 'pull') {
@@ -78,6 +66,6 @@ self.addEventListener('sync', function(event) {
 });
 
 // this.addEventListener('fetch', function(event) {
-//   console.log('event.request: ', event.request);
+//   console.log('sw fetch event: ', event);
 //   event.respondWith(fetch(event.request));
 // });
